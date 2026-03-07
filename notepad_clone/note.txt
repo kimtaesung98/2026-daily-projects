@@ -1,0 +1,6 @@
+Ctrl + S   저장
+Ctrl + O   열기
+Ctrl + N   새파일
+Ctrl + A   전체선택
+Ctrl + Z   Undo
+Ctrl + Y   Redo
