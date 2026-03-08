@@ -11,29 +11,74 @@ class FactoryProvider extends ChangeNotifier {
 
   // 모니터링 시작 (데이터 수집 개시)
   void startMonitoring() {
-    // 1초마다 무작위 데이터를 생성하여 리스트를 갱신
-    _subscription = Stream.periodic(const Duration(seconds: 1)).listen((_) {
-      _machines = List.generate(4, (index) {
-        final rand = math.Random();
-        double temp = 50.0 + rand.nextDouble() * 50; // 50~100도
-        
-        return MachineModel(
-          id: "LINE-0${index + 1}",
-          name: "${index + 1}번 생산 라인",
-          temperature: temp,
-          pressure: 80.0 + rand.nextDouble() * 40,   // 80~120압력
-          status: temp > 90 ? "WARNING" : "RUNNING", // 90도 넘으면 경고
-          lastUpdate: DateTime.now(),
-        );
-      });
-      
-      notifyListeners(); // 중요: UI에게 "데이터 바뀌었으니 다시 그려!"라고 신호 보냄
-    });
-  }
+
+  _machines = List.generate(4, (index) {
+    return MachineModel(
+      id: "LINE-0${index + 1}",
+      name: "${index + 1}번 생산 라인",
+      temperature: 60,
+      pressure: 100,
+      status: "RUNNING",
+      lastUpdate: DateTime.now(),
+      tempHistory: [],
+    );
+  });
+
+  _subscription = Stream.periodic(const Duration(seconds: 1)).listen((_) {
+
+    final rand = math.Random();
+
+    _machines = _machines.map((machine) {
+
+      double newTemp = 50 + rand.nextDouble() * 50;
+      double newPressure = 80 + rand.nextDouble() * 40;
+
+      return machine.copyWith(
+        newTemp: newTemp,
+        newPressure: newPressure,
+      );
+
+    }).toList();
+
+    notifyListeners();
+
+  });
+}
 
   @override
   void dispose() {
     _subscription?.cancel(); // 앱 종료 시 데이터 수집 중단
     super.dispose();
   }
+}
+
+class TrendPainter extends CustomPainter {
+  final List<double> history;
+  TrendPainter(this.history);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (history.length < 2) return;
+
+    final paint = Paint()
+      ..color = Colors.cyanAccent
+      ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke;
+
+    final path = Path();
+    double dx = size.width / (history.length - 1);
+    
+    // 데이터를 화면 높이에 맞춰 정규화 (Min: 50, Max: 100 가정)
+    for (int i = 0; i < history.length; i++) {
+      double x = i * dx;
+      double y = size.height - ((history[i] - 50) / 50 * size.height);
+      
+      if (i == 0) path.moveTo(x, y);
+      else path.lineTo(x, y);
+    }
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
