@@ -17,23 +17,48 @@ class DashboardScreen extends StatelessWidget {
         title: const Text("공장 모니터링 대시보드"),
       ),
 
-      body: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 1.6,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
-        itemCount: machines.length,
-        itemBuilder: (context, index) {
+      body: Row(
+  children: [
 
-          final machine = machines[index];
+    // 메인 대시보드 영역
+    Expanded(
+      flex: 3,
+      child: _buildMainGrid(factory),
+    ),
 
-          return _machineCard(context, machine);
+    // 우측 로그 패널
+    Container(
+      width: 300,
+      color: Colors.black,
+      child: Column(
+        children: [
 
-        },
+          _buildPanelHeader(
+            "실시간 시스템 로그",
+            factory.exportReport,
+          ),
+
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(10),
+              itemCount: factory.eventLogs.length,
+              itemBuilder: (context, i) {
+                return Text(
+                  factory.eventLogs[i],
+                  style: const TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 12,
+                    fontFamily: 'Consolas',
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
+    ),
+  ],
+)
     );
   }
 }
@@ -90,6 +115,55 @@ Widget _machineCard(BuildContext context, MachineModel machine) {
           )
         ],
       ),
+    ),
+  );
+}
+
+Widget _buildMainGrid(FactoryProvider factory) {
+
+  final machines = factory.machines;
+
+  return GridView.builder(
+    padding: const EdgeInsets.all(16),
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      childAspectRatio: 1.6,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+    ),
+    itemCount: machines.length,
+    itemBuilder: (context, index) {
+
+      final machine = machines[index];
+
+      return _machineCard(context, machine);
+
+    },
+  );
+}
+
+Widget _buildPanelHeader(String title, VoidCallback onExport) {
+
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+    color: Colors.grey[900],
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+        IconButton(
+          icon: const Icon(Icons.download, color: Colors.white),
+          onPressed: onExport,
+        ),
+      ],
     ),
   );
 }
