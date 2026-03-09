@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'factory_provider.dart';
-import 'dashboard_screen.dart';
+
+import './provider/factory_provider.dart';
+import 'data/datasources/machine_remote_datasource.dart';
+import 'data/repositories/machine_repository.dart';
+import 'screens/dashboard_screen.dart';
 
 void main() {
+
+  final dataSource = MachineRemoteDataSource();
+  final repository = MachineRepository(dataSource);
+
   runApp(
     ChangeNotifierProvider(
-      create: (_) => FactoryProvider()..startMonitoring(),
+      create: (_) => FactoryProvider(),
       child: const FactoryApp(),
     ),
   );

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'factory_provider.dart';
-import 'machine_model.dart';
+import '../provider/factory_provider.dart';
+import '../models/machine_model.dart';
+import '../widgets/trend_chart.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});

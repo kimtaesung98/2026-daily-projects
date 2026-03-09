@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'machine_model.dart';
+import './models/machine_model.dart';
 
 class FactoryProvider extends ChangeNotifier {
   List<MachineModel> _machines = [];
