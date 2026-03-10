@@ -1,25 +1,27 @@
+// lib/data/datasources/machine_remote_datasource.dart
 import 'dart:async';
 import 'dart:math';
 
 class MachineRemoteDataSource {
+  final _random = Random();
 
   Future<List<Map<String, dynamic>>> fetchRawFactoryData() async {
+    // 1. 네트워크 지연 시뮬레이션 (0.5초 ~ 2.5초 사이 랜덤)
+    // 실제 웹 통신은 응답 속도가 일정하지 않음을 배웁니다.
+    await Future.delayed(Duration(milliseconds: 500 + _random.nextInt(2000)));
 
-    final rand = Random();
-
-    await Future.delayed(
-      Duration(milliseconds: 500 + rand.nextInt(1500))
-    );
-
-    if (rand.nextInt(10) == 0) {
-      throw Exception("네트워크 불안정: 서버 응답 없음 (503 Error)");
+    // 2. 불확실성 시뮬레이션: 15% 확률로 서버 에러 발생
+    // 현장에서는 통신 두절이 빈번하므로 이를 대비하는 로직이 필수입니다.
+    if (_random.nextInt(100) < 15) {
+      throw Exception("서버 연결 실패 (Connection Timeout)");
     }
 
-    return List.generate(5, (i) => {
-      "id": "MC-$i",
-      "name": "공정 라인 $i",
-      "temp": 40.0 + rand.nextDouble() * 60,
-      "press": 90.0 + rand.nextDouble() * 30,
+    // 3. 가상의 JSON 데이터 반환
+    return List.generate(6, (i) => {
+      "id": "LINE-B$i",
+      "name": "생산 공정 $i호기",
+      "temp": 30.0 + _random.nextDouble() * 70, // 30~100도
+      "press": 80.0 + _random.nextDouble() * 50, // 80~130압력
       "status": "ONLINE"
     });
   }

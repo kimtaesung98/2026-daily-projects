@@ -1,0 +1,19 @@
+lib/
+├── core/                # 공통 유틸리티 및 설정
+│   ├── constants/       # 앱 전역 상수 (API URL, 색상 등)
+│   ├── errors/          # 예외 처리 클래스
+│   └── theme/           # 공장 스타일 다크 테마 설정
+│
+├── data/                # 데이터 계층 (날것의 데이터 처리)
+│   ├── datasources/     # 외부 데이터 소스 (API, Mock, Local DB)
+│   ├── models/          # JSON 파싱 및 데이터 객체 (DTO)
+│   └── repositories/    # 데이터 소스를 결합하여 비즈니스 모델로 변환
+│
+├── providers/           # 상태 관리 계층 (UI와 데이터를 연결)
+│   └── factory_provider.dart
+│
+├── ui/                  # 화면 계층 (위젯 및 스크린)
+│   ├── screens/         # 대시보드, 상세 리포트 페이지
+│   └── widgets/         # 기계 카드, 실시간 그래프, 로그 패널
+│
+└── main.dart            # 앱의 시작점 및 의존성 주입

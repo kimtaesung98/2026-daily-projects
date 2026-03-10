@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import './provider/factory_provider.dart';
 import 'data/datasources/machine_remote_datasource.dart';
 import 'data/repositories/machine_repository.dart';
-import 'screens/dashboard_screen.dart';
+import 'ui/screens/dashboard_screen.dart';
 
 void main() {
 
@@ -13,7 +13,7 @@ void main() {
 
   runApp(
     ChangeNotifierProvider(
-      create: (_) => FactoryProvider(),
+      create: (_) => FactoryProvider(repository),
       child: const FactoryApp(),
     ),
   );
