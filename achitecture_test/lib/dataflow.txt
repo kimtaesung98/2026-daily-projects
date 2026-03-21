@@ -1,0 +1,14 @@
+User taps Weather grid box
+  → GridScreen pushes WeatherScreen via Navigator
+    → WeatherScreen.initState() fires
+      → provider.loadWeather() called
+        → WeatherApi.fetchWeather() called
+          → http.get(url) sends GET to OpenWeatherMap
+            ← JSON response arrives
+          → WeatherModel.fromJson() parses JSON
+        ← WeatherModel returned to Provider
+      → provider._weather = model
+      → provider.notifyListeners()
+    → Consumer<WeatherProvider> rebuilds WeatherScreen
+      → WeatherChart receives hourlyData list
+        → fl_chart renders the line graph

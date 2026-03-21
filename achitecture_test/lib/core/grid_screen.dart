@@ -43,6 +43,13 @@ final List<GridNode> gridNodes = [
   /*
   추가되는 node
   */
+  GridNode(
+    title: 'Coming Soon',
+    subtitle: 'Next feature',
+    icon: Icons.add_circle_outline,
+    color: const Color(0xFF9B9B9B),
+    destination: const _PlaceholderScreen(),
+  ),
 ];
 
 class GridScreen extends StatelessWidget {

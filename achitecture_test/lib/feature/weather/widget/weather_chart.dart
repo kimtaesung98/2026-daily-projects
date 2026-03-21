@@ -74,7 +74,7 @@ class WeatherChart extends StatelessWidget {
               barWidth: 3,
               dotData: FlDotData(
                 show: true,
-                getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(
+                getDotPainter: (_, _, _, _) => FlDotCirclePainter(
                   radius: 4,
                   color: Colors.white,
                   strokeWidth: 2,

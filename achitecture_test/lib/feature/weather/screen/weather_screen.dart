@@ -106,7 +106,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                   'https://openweathermap.org/img/wn/${w.iconCode}@2x.png',
                                   width: 48,
                                   height: 48,
-                                  errorBuilder: (_, __, ___) => const Icon(
+                                  errorBuilder: (_, _, _) => const Icon(
                                     Icons.cloud,
                                     color: Colors.white,
                                     size: 40,

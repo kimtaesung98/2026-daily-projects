@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart' hide Colors;
 
 import '../logic/shape_factory.dart';
 import '../renderer/universal_3d_painter.dart';

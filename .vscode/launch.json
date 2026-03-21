@@ -1,0 +1,148 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "achitecture_test",
+            "cwd": "achitecture_test",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "achitecture_test (profile mode)",
+            "cwd": "achitecture_test",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "achitecture_test (release mode)",
+            "cwd": "achitecture_test",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "core_grid_achitecture",
+            "cwd": "core_grid_achitecture",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "core_grid_achitecture (profile mode)",
+            "cwd": "core_grid_achitecture",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "core_grid_achitecture (release mode)",
+            "cwd": "core_grid_achitecture",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "cube",
+            "cwd": "cube",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "cube (profile mode)",
+            "cwd": "cube",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "cube (release mode)",
+            "cwd": "cube",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "hello_world",
+            "cwd": "hello_world",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "hello_world (profile mode)",
+            "cwd": "hello_world",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "hello_world (release mode)",
+            "cwd": "hello_world",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "notepad_clone",
+            "cwd": "notepad_clone",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "notepad_clone (profile mode)",
+            "cwd": "notepad_clone",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "notepad_clone (release mode)",
+            "cwd": "notepad_clone",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "smart_factory",
+            "cwd": "smart_factory",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "smart_factory (profile mode)",
+            "cwd": "smart_factory",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "smart_factory (release mode)",
+            "cwd": "smart_factory",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "weather",
+            "cwd": "weather",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "weather (profile mode)",
+            "cwd": "weather",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "weather (release mode)",
+            "cwd": "weather",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}

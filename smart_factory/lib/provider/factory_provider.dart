@@ -20,7 +20,7 @@ class FactoryProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   int _rawFetchCount = 0;    // 실제 데이터 수집 횟수
-  int _uiUpdateCount = 0;    // 실제 UI 갱신(notify) 횟수
+  final int _uiUpdateCount = 0;    // 실제 UI 갱신(notify) 횟수
   String get flowReport => "수집: $_rawFetchCount | 갱신: $_uiUpdateCount (최적화율: ${((1 - _uiUpdateCount/_rawFetchCount) * 100).toStringAsFixed(1)}%)";
   
   // 데이터 수집 엔진 (실제로는 더 빈번하게 데이터가 들어온다고 가정)
