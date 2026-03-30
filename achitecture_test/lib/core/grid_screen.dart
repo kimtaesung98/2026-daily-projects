@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../feature/weather/screen/weather_screen.dart';
-
+import '../feature/weather/screen/ble_screen.dart';
 // ─────────────────────────────────────────────
 // CORE: Do NOT modify this file after creation.
 // Grid layout is the immutable shell.
@@ -41,8 +41,22 @@ final List<GridNode> gridNodes = [
     destination: const _PlaceholderScreen(),
   ),
   /*
-  추가되는 node
+  ======================================================================
+
+
+                          추가되는 node
+
+
+  ======================================================================
   */
+  GridNode(
+    title: 'BLE Console',
+    subtitle: 'Hardware Debug & Comm',
+    icon: Icons.bluetooth_connected,
+    color: const Color(0xFFE65100), // 하드웨어/터미널 느낌의 주황색
+    destination: const BleScreen(), // 2단계에서 만들 화면
+  ),
+
   GridNode(
     title: 'Coming Soon',
     subtitle: 'Next feature',
