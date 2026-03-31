@@ -1,7 +1,7 @@
+// lib/screen/grid_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provider/grid_provider.dart';
-import 'detail_screen.dart';
 
 class GridScreen extends StatelessWidget {
   const GridScreen({super.key});
@@ -12,18 +12,23 @@ class GridScreen extends StatelessWidget {
 
     return Scaffold(
       body: GridView.builder(
-        // 2열 고정, 화면 비율에 맞춰 확장
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
+          childAspectRatio: 2.0, // 허쉬 바 비율
         ),
         itemCount: provider.nodes.length,
         itemBuilder: (context, index) {
           final node = provider.nodes[index];
+          
           return GestureDetector(
-            onTap: () => Navigator.push(
-              context, 
-              MaterialPageRoute(builder: (_) => DetailScreen(node: node))
-            ),
+            onTap: () {
+              // GridScreen은 어떤 화면인지 몰라도 됩니다.
+              // 노드가 주는 화면을 그냥 띄울 뿐입니다.
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => node.buildDetailScreen(context)),
+              );
+            },
             child: Container(
               decoration: BoxDecoration(border: Border.all(width: 0.5)),
               child: Center(child: Text(node.title)),
