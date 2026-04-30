@@ -6,6 +6,7 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../../dependency_injection/locator.dart';
+import '../policy/transmission_policy.dart';
 import '../../domain/interfaces/i_buffer_manager.dart';
 import '../../domain/interfaces/i_connection_monitor.dart';
 import '../../network/sync_service.dart';
@@ -18,6 +19,7 @@ class BackgroundServiceManager {
   static const String startEvent = 'startBridge';
   static const String stopEvent = 'stopBridge';
   static const String pingEvent = 'requestStatus';
+  static const String updatePolicyEvent = 'updatePolicy';
 
   static final FlutterBackgroundService _service = FlutterBackgroundService();
   static final FlutterLocalNotificationsPlugin _notifications =
@@ -72,6 +74,8 @@ class BackgroundServiceManager {
     final syncService = locator<SyncService>();
     final bufferManager = locator<IBufferManager>();
     final monitor = locator<IConnectionMonitor>();
+    final policy = locator<TransmissionPolicy>();
+    await policy.load();
     syncService.startBridge();
 
     void publishStatus() {
@@ -82,6 +86,9 @@ class BackgroundServiceManager {
         'lastBatchSentCount': syncService.lastBatchSentCount,
         'retryCount': syncService.retryCount,
         'isBridgeRunning': syncService.isBridgeRunning,
+        'speed': policy.state.speed.name,
+        'wifiOnly': policy.state.wifiOnly,
+        'isWifiConnection': monitor.isWifiConnection,
       };
 
       service.invoke(statusEvent, payload);
@@ -110,5 +117,10 @@ class BackgroundServiceManager {
     });
 
     service.on(pingEvent).listen((_) => publishStatus());
+    service.on(updatePolicyEvent).listen((event) async {
+      if (event == null) return;
+      await policy.applyRemote(event);
+      publishStatus();
+    });
   }
 }

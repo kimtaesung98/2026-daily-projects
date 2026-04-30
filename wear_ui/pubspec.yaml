@@ -44,6 +44,7 @@ dependencies:
   connectivity_plus: ^6.0.3
   flutter_background_service: ^5.1.0
   flutter_local_notifications: ^17.2.3
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:

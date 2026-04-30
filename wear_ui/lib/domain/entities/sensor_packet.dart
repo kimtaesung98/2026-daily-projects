@@ -11,6 +11,9 @@ class SensorPacket {
   final double accelY;
   final double accelZ;
   final String deviceId;
+  final String userId;
+  final String deviceModel;
+  final String deviceOs;
   final int sequenceNumber;
   final NetworkStatus networkStatus;
 
@@ -23,12 +26,18 @@ class SensorPacket {
     required this.accelY,
     required this.accelZ,
     required this.deviceId,
+    required this.userId,
+    required this.deviceModel,
+    required this.deviceOs,
     required this.sequenceNumber,
     required this.networkStatus,
   });
 
   SensorPacket copyWith({
     NetworkStatus? networkStatus,
+    String? userId,
+    String? deviceModel,
+    String? deviceOs,
   }) {
     return SensorPacket(
       timestamp: timestamp,
@@ -39,6 +48,9 @@ class SensorPacket {
       accelY: accelY,
       accelZ: accelZ,
       deviceId: deviceId,
+      userId: userId ?? this.userId,
+      deviceModel: deviceModel ?? this.deviceModel,
+      deviceOs: deviceOs ?? this.deviceOs,
       sequenceNumber: sequenceNumber,
       networkStatus: networkStatus ?? this.networkStatus,
     );
@@ -53,7 +65,11 @@ class SensorPacket {
       'accelY': accelY,
       'accelZ': accelZ,
       'deviceId': deviceId,
+      'userId': userId,
+      'deviceModel': deviceModel,
+      'deviceOs': deviceOs,
       'sequenceNumber': sequenceNumber,
+      'networkStatus': networkStatus.name,
     };
   }
 }

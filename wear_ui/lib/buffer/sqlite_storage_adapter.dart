@@ -17,7 +17,7 @@ class SqliteStorageAdapter implements IStorageAdapter {
 
     _database = await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) {
         return db.execute('''
           CREATE TABLE $_tableName (
@@ -26,10 +26,22 @@ class SqliteStorageAdapter implements IStorageAdapter {
             gyroX REAL, gyroY REAL, gyroZ REAL,
             accelX REAL, accelY REAL, accelZ REAL,
             deviceId TEXT,
+            userId TEXT,
+            deviceModel TEXT,
+            deviceOs TEXT,
             sequenceNumber INTEGER,
             networkStatus INTEGER
           )
         ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute("ALTER TABLE $_tableName ADD COLUMN userId TEXT DEFAULT ''");
+          await db.execute(
+            "ALTER TABLE $_tableName ADD COLUMN deviceModel TEXT DEFAULT ''",
+          );
+          await db.execute("ALTER TABLE $_tableName ADD COLUMN deviceOs TEXT DEFAULT ''");
+        }
       },
     );
   }
@@ -43,6 +55,9 @@ class SqliteStorageAdapter implements IStorageAdapter {
         'gyroX': packet.gyroX, 'gyroY': packet.gyroY, 'gyroZ': packet.gyroZ,
         'accelX': packet.accelX, 'accelY': packet.accelY, 'accelZ': packet.accelZ,
         'deviceId': packet.deviceId,
+        'userId': packet.userId,
+        'deviceModel': packet.deviceModel,
+        'deviceOs': packet.deviceOs,
         'sequenceNumber': packet.sequenceNumber,
         'networkStatus': packet.networkStatus.index,
       });
@@ -60,6 +75,9 @@ class SqliteStorageAdapter implements IStorageAdapter {
         gyroX: maps[i]['gyroX'], gyroY: maps[i]['gyroY'], gyroZ: maps[i]['gyroZ'],
         accelX: maps[i]['accelX'], accelY: maps[i]['accelY'], accelZ: maps[i]['accelZ'],
         deviceId: maps[i]['deviceId'],
+        userId: maps[i]['userId'] ?? '',
+        deviceModel: maps[i]['deviceModel'] ?? '',
+        deviceOs: maps[i]['deviceOs'] ?? '',
         sequenceNumber: maps[i]['sequenceNumber'],
         networkStatus: NetworkStatus.values[maps[i]['networkStatus']],
       );

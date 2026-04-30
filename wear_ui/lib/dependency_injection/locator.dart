@@ -13,13 +13,25 @@ import '../network/mqtt_edge_client.dart';
 import '../buffer/storage_adapter.dart';
 import '../buffer/sqlite_storage_adapter.dart';
 import '../buffer/persistent_buffer_manager.dart';
+import '../network/wear_connectivity_service.dart';
+import '../core/policy/transmission_policy.dart';
 
 final locator = GetIt.instance;
 
 void setupLocator() {
+  locator.registerLazySingleton<TransmissionPolicy>(() => TransmissionPolicy());
+
   // Core Services
   locator.registerLazySingleton<ISensorService>(() => DeviceSensorService());
-  locator.registerLazySingleton<IConnectionMonitor>(() => ConnectionMonitor());
+  locator.registerLazySingleton<WearConnectivityService>(
+    () => WearConnectivityService(),
+  );
+  locator.registerLazySingleton<IConnectionMonitor>(
+    () => ConnectionMonitor(
+      wearConnectivityService: locator<WearConnectivityService>(),
+      userId: locator<TransmissionPolicy>().state.adminUserId,
+    ),
+  );
   locator.registerLazySingleton<IEdgeClient>(() => MqttEdgeClient());
 
   // Orchestrator
@@ -28,14 +40,16 @@ void setupLocator() {
     locator<IBufferManager>(),
     locator<IConnectionMonitor>(),
     locator<IEdgeClient>(),
+    locator<TransmissionPolicy>(),
   ));
 
   // UI State Controller
-  locator.registerFactory<DashboardController>(() => DashboardController(
+  locator.registerLazySingleton<DashboardController>(() => DashboardController(
     sensorService: locator<ISensorService>(),
     bufferManager: locator<IBufferManager>(),
     connectionMonitor: locator<IConnectionMonitor>(),
     syncService: locator<SyncService>(),
+    transmissionPolicy: locator<TransmissionPolicy>(),
   ));
 
   locator.registerLazySingleton<IStorageAdapter>(() => SqliteStorageAdapter());

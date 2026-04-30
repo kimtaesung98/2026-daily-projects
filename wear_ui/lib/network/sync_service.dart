@@ -4,17 +4,22 @@ import '../domain/interfaces/i_connection_monitor.dart';
 import '../domain/interfaces/i_edge_client.dart';
 import '../domain/interfaces/i_buffer_manager.dart';
 import '../core/types/network_status.dart';
+import '../core/policy/transmission_policy.dart';
 
 class SyncService {
   final ISensorService _sensorService;
   final IBufferManager _bufferManager;
   final IConnectionMonitor _connectionMonitor;
   final IEdgeClient _edgeClient;
+  final TransmissionPolicy _policy;
 
   StreamSubscription? _sensorSub;
+  Timer? _flushTimer;
   
   NetworkStatus _currentNetworkStatus = NetworkStatus.offline;
   bool _isBridgeRunning = false;
+  bool _isPaused = true;
+  bool _isFlushing = false;
   int _retryCount = 0;
   int _totalSentPackets = 0;
   int _lastBatchSentCount = 0;
@@ -26,36 +31,73 @@ class SyncService {
     this._bufferManager,
     this._connectionMonitor,
     this._edgeClient,
+    this._policy,
   ) {
     _initNetworkMonitoring();
+    _initPolicyMonitoring();
   }
 
   void _initNetworkMonitoring() {
-    _connectionMonitor.statusStream.listen((status) {
+    _edgeClient.bindConnectionStatus((isConnected) {
+      _connectionMonitor.updateEdgeConnection(isConnected);
+    });
+
+    _connectionMonitor.statusStream.listen((status) async {
       _currentNetworkStatus = status;
+      _isPaused = !_canSendNow();
+      if (_isPaused) {
+        await _bufferManager.persistNow();
+      } else {
+        _reconfigureFlushLoop();
+      }
       _emitRuntimeStatus();
-      if (status == NetworkStatus.online) {
-        _flushBufferToEdge();
+      if (_canSendNow()) {
+        await _flushBufferToEdge();
       }
     });
+  }
+
+  void _initPolicyMonitoring() {
+    _policy.stream.listen((state) async {
+      _connectionMonitor.updateUserId(state.adminUserId);
+      _isPaused = !_canSendNow();
+      if (_isPaused) {
+        await _bufferManager.persistNow();
+      }
+      _reconfigureFlushLoop();
+      _emitRuntimeStatus();
+    });
+  }
+
+  bool _canSendNow() {
+    if (_currentNetworkStatus != NetworkStatus.online) return false;
+    if (_policy.state.wifiOnly && !_connectionMonitor.isWifiConnection) return false;
+    return true;
   }
 
   void startBridge() {
     if (_isBridgeRunning) return;
     _isBridgeRunning = true;
+    _connectionMonitor.updateUserId(_policy.state.adminUserId);
     _sensorService.startStreaming();
-    _sensorSub = _sensorService.sensorStream.listen((packet) {
-      // Tag packet with current known network state
-      final updatedPacket = packet.copyWith(networkStatus: _currentNetworkStatus);
+    _sensorSub = _sensorService.sensorStream.listen((packet) async {
+      final updatedPacket = packet.copyWith(
+        networkStatus: _currentNetworkStatus,
+        userId: _policy.state.adminUserId,
+      );
       
       _bufferManager.addPacket(updatedPacket);
+      _isPaused = !_canSendNow();
+      if (_isPaused || _policy.state.speed != TransmissionSpeed.realTime) {
+        await _bufferManager.persistNow();
+      }
       _emitRuntimeStatus();
 
-      // If online, immediately flush buffer (which includes the packet just added)
-      if (_currentNetworkStatus == NetworkStatus.online) {
-         _flushBufferToEdge();
+      if (_policy.state.speed == TransmissionSpeed.realTime && _canSendNow()) {
+        await _flushBufferToEdge();
       }
     });
+    _reconfigureFlushLoop();
     _emitRuntimeStatus();
   }
 
@@ -67,6 +109,24 @@ class SyncService {
   int get lastBatchSentCount => _lastBatchSentCount;
   bool get isBridgeRunning => _isBridgeRunning;
 
+  void _reconfigureFlushLoop() {
+    _flushTimer?.cancel();
+    if (!_isBridgeRunning) return;
+    final interval = _policy.state.flushInterval;
+    if (interval == Duration.zero) return;
+
+    _flushTimer = Timer.periodic(interval, (_) async {
+      if (!_canSendNow()) {
+        _isPaused = true;
+        await _bufferManager.persistNow();
+        _emitRuntimeStatus();
+        return;
+      }
+      _isPaused = false;
+      await _flushBufferToEdge();
+    });
+  }
+
   void _emitRuntimeStatus() {
     _runtimeStatusController.add({
       'networkStatus': _currentNetworkStatus.name,
@@ -74,29 +134,52 @@ class SyncService {
       'totalSentPackets': _totalSentPackets,
       'lastBatchSentCount': _lastBatchSentCount,
       'isBridgeRunning': _isBridgeRunning,
+      'isPaused': _isPaused,
       'bufferSize': _bufferManager.currentSize,
+      'isWearConnected': _connectionMonitor.isWearConnected,
+      'isEdgeConnected': _connectionMonitor.isEdgeConnected,
+      'currentUserId': _connectionMonitor.currentUserId,
+      'connectedWatchName': _connectionMonitor.connectedWatchName,
+      'connectedWatchModel': _connectionMonitor.connectedWatchModel,
+      'speed': _policy.state.speed.name,
+      'wifiOnly': _policy.state.wifiOnly,
+      'isWifiConnection': _connectionMonitor.isWifiConnection,
     });
   }
 
   Future<void> _flushBufferToEdge() async {
-    if (_currentNetworkStatus != NetworkStatus.online) return;
+    if (!_canSendNow() || _isFlushing) return;
+    _isFlushing = true;
     
     final packets = await _bufferManager.flushAndGetPackets();
-    if (packets.isEmpty) return;
+    if (packets.isEmpty) {
+      _isFlushing = false;
+      return;
+    }
 
     try {
       // 전송 시도
-      await _edgeClient.sendBatch(packets);
+      await _edgeClient.sendBatch(
+        packets,
+        headers: {
+          'x-user-id': _connectionMonitor.currentUserId,
+          'x-device-model': packets.first.deviceModel,
+          'x-device-os': packets.first.deviceOs,
+          'x-watch-name': _connectionMonitor.connectedWatchName,
+        },
+      );
       
       // 성공 시: 재시도 횟수 초기화 및 성공 로그
       _retryCount = 0;
       _lastBatchSentCount = packets.length;
       _totalSentPackets += packets.length;
+      _isPaused = false;
       _emitRuntimeStatus();
       print("🎯 [Sync]: ${packets.length}개 패킷 전송 완료 및 확인됨.");
       
     } catch (e) {
       _retryCount++;
+      _isPaused = true;
       _emitRuntimeStatus();
       print("⚠️ [Sync]: 전송 실패 ($_retryCount회). 재시도 대기 중...");
       
@@ -111,18 +194,21 @@ class SyncService {
       final backoffDuration = Duration(seconds: backoffSeconds);
       await Future.delayed(backoffDuration);
       
-      // 연결 상태가 여전히 온라인이면 재시도 트리거
-      if (_currentNetworkStatus == NetworkStatus.online) {
-        _flushBufferToEdge();
+      if (_canSendNow()) {
+        await _flushBufferToEdge();
       }
+    } finally {
+      _isFlushing = false;
     }
   }
 
   void stopBridge() {
     _isBridgeRunning = false;
     _sensorSub?.cancel();
+    _flushTimer?.cancel();
     _sensorSub = null;
     _sensorService.stopStreaming();
+    _isPaused = true;
     _emitRuntimeStatus();
   }
   

@@ -37,6 +37,12 @@ class PersistentBufferManager implements IBufferManager {
     if (toSave.isEmpty) return;
     await _storage.savePackets(toSave);
     print("💾 [Persistent Buffer]: ${toSave.length} packets moved to SQLite.");
+    _sizeController.add(_memoryCache.length);
+  }
+
+  @override
+  Future<void> persistNow() async {
+    await _persistMemoryToDisk();
   }
 
   @override

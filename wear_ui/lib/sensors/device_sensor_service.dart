@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:sensors_plus/sensors_plus.dart';
 import '../domain/interfaces/i_sensor_service.dart';
 import '../domain/entities/sensor_packet.dart';
@@ -13,6 +14,9 @@ class DeviceSensorService implements ISensorService {
   double _ax = 0, _ay = 0, _az = 0;
   int _sequenceCounter = 0;
   final String _deviceId = "EDGE_PHONE_01"; // Mock ID
+  final String _userId = 'dev-user-001';
+  final String _deviceModel = 'Android Phone';
+  final String _deviceOs = Platform.operatingSystem;
 
   @override
   Stream<SensorPacket> get sensorStream => _controller.stream;
@@ -38,6 +42,9 @@ class DeviceSensorService implements ISensorService {
       gyroX: _gx, gyroY: _gy, gyroZ: _gz,
       accelX: _ax, accelY: _ay, accelZ: _az,
       deviceId: _deviceId,
+      userId: _userId,
+      deviceModel: _deviceModel,
+      deviceOs: _deviceOs,
       sequenceNumber: _sequenceCounter,
       networkStatus: NetworkStatus.offline, // Default, SyncService updates this
     );

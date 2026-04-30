@@ -3,8 +3,19 @@ import '../domain/interfaces/i_edge_client.dart';
 import '../domain/entities/sensor_packet.dart';
 
 class MockEdgeClient implements IEdgeClient {
+  void Function(bool isConnected)? _listener;
+
   @override
-  Future<void> sendBatch(List<SensorPacket> packets) async {
+  void bindConnectionStatus(void Function(bool isConnected) onChanged) {
+    _listener = onChanged;
+    _listener?.call(true);
+  }
+
+  @override
+  Future<void> sendBatch(
+    List<SensorPacket> packets, {
+    required Map<String, String> headers,
+  }) async {
     if (packets.isEmpty) return;
 
     print("🚀 [Edge Client]: Initiating transfer of ${packets.length} packets...");
@@ -17,9 +28,11 @@ class MockEdgeClient implements IEdgeClient {
     
     if (isTransmissionFailed) {
       print("❌ [Edge Client]: Transmission failed! Target unreachable.");
+      _listener?.call(false);
       throw Exception("Edge device timeout");
     }
 
+    _listener?.call(true);
     print("✅ [Edge Client]: Successfully delivered ${packets.length} packets to Edge Device.");
   }
 }

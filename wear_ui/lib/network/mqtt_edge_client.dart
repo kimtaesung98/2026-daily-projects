@@ -8,6 +8,7 @@ import '../core/types/network_status.dart';
 class MqttEdgeClient implements IEdgeClient {
   late MqttServerClient _client;
   bool _isConnected = false;
+  void Function(bool isConnected)? _connectionListener;
   
   // TODO: 실제 Edge 디바이스(또는 MQTT 브로커)의 IP 주소로 변경하세요.
   final String brokerAddress = '192.168.1.100'; 
@@ -28,19 +29,17 @@ class MqttEdgeClient implements IEdgeClient {
     
     // 자동 재연결 설정
     _client.autoReconnect = true;
-    _client.onDisconnected = () {
-      print('⚠️ [MQTT]: Edge Device와 연결이 끊어졌습니다.');
-      _isConnected = false;
-    };
     _client.onConnected = () {
       print('✅ [MQTT]: Edge Device에 성공적으로 연결되었습니다.');
-      _isConnected = true;
-    };
-    _client.onConnected = () {
       _updateSystemStatus(NetworkStatus.online);
+      _isConnected = true;
+      _connectionListener?.call(true);
     };
     _client.onDisconnected = () {
+      print('⚠️ [MQTT]: Edge Device와 연결이 끊어졌습니다.');
       _updateSystemStatus(NetworkStatus.reconnecting);
+      _isConnected = false;
+      _connectionListener?.call(false);
     };
     _client.onAutoReconnect = () => _updateSystemStatus(NetworkStatus.connecting);
   }
@@ -66,7 +65,15 @@ class MqttEdgeClient implements IEdgeClient {
   }
 
   @override
-  Future<void> sendBatch(List<SensorPacket> packets) async {
+  void bindConnectionStatus(void Function(bool isConnected) onChanged) {
+    _connectionListener = onChanged;
+  }
+
+  @override
+  Future<void> sendBatch(
+    List<SensorPacket> packets, {
+    required Map<String, String> headers,
+  }) async {
     if (packets.isEmpty) return;
 
     // 1. 연결 상태 확인 및 재연결
@@ -74,7 +81,10 @@ class MqttEdgeClient implements IEdgeClient {
 
     // 2. 패킷 리스트를 JSON 배열 문자열로 변환
     final List<Map<String, dynamic>> jsonList = packets.map((p) => p.toJson()).toList();
-    final String jsonPayload = jsonEncode({'batch': jsonList});
+    final String jsonPayload = jsonEncode({
+      'headers': headers,
+      'batch': jsonList,
+    });
 
     // 3. MQTT 페이로드 빌더 생성
     final builder = MqttClientPayloadBuilder();

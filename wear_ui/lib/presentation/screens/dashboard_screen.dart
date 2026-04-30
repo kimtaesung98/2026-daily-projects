@@ -48,11 +48,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: controller.toggleStreaming,
-        label: Text(controller.isStreaming ? 'Stop Streaming' : 'Start Streaming'),
-        icon: Icon(controller.isStreaming ? Icons.stop : Icons.play_arrow),
-      ),
     );
   }
 

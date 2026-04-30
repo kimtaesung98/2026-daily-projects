@@ -42,4 +42,7 @@ class BufferManager implements IBufferManager {
     _sizeController.add(0);
     return Future.value(packetsToSync);
   }
+
+  @override
+  Future<void> persistNow() async {}
 }
