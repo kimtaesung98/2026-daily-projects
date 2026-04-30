@@ -63,6 +63,15 @@ class StatusIndicator extends StatelessWidget {
       case NetworkStatus.online: return Colors.green;
       case NetworkStatus.offline: return Colors.red;
       case NetworkStatus.reconnecting: return Colors.orange;
+      case NetworkStatus.searching:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case NetworkStatus.connecting:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case NetworkStatus.error:
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
   }
 }

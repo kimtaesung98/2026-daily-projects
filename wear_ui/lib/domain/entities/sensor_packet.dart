@@ -43,4 +43,17 @@ class SensorPacket {
       networkStatus: networkStatus ?? this.networkStatus,
     );
   }
+  Map<String, dynamic> toJson() {
+    return {
+      'timestamp': timestamp.toIso8601String(),
+      'gyroX': gyroX,
+      'gyroY': gyroY,
+      'gyroZ': gyroZ,
+      'accelX': accelX,
+      'accelY': accelY,
+      'accelZ': accelZ,
+      'deviceId': deviceId,
+      'sequenceNumber': sequenceNumber,
+    };
+  }
 }

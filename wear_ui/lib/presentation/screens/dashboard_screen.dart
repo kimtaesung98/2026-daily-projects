@@ -64,6 +64,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Text("Network: ${controller.currentNetworkStatus.name.toUpperCase()}"),
             Text("Buffer Size: ${controller.currentBufferSize} packets"),
+            Text("Sent Packets: ${controller.totalSentPackets}"),
+            Text("Retry Count: ${controller.retryCount}"),
             Text("Bridge Status: ${controller.isStreaming ? 'ACTIVE' : 'IDLE'}"),
           ],
         ),

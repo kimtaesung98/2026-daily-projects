@@ -1,17 +1,65 @@
-# wear_ui
+# Wear UI: Sensor Integrity Bridge
 
-A new Flutter project.
+고객 기기에서 발생하는 센서 데이터를 누락 없이 Edge 장치로 전달하기 위한 Flutter 기반 브릿지 앱입니다.
 
-## Getting Started
+## 1) 현재 단계: 신뢰성 있는 데이터 파이프라인 구축
 
-This project is a starting point for a Flutter application.
+현재 목표인 "무결성 브릿지"의 핵심 뼈대는 완성되어 있습니다.
 
-A few resources to get you started if this is your first Flutter project:
+- Offline-Ready: 네트워크 단절 시 SQLite 기반으로 자동 버퍼링
+- Clean Architecture: 플랫폼(Phone/Watch) 및 통신 프로토콜(MQTT/HTTP) 교체 용이
+- Real-time Feedback: 대시보드를 통한 실시간 수집/전송 상태 확인
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## 2) 단기 진행 (Phase 1): 관리자 가시성 및 운영 안정화
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+고객 폰에서 앱이 "조용히, 하지만 확실하게" 동작하도록 운영 안정성을 강화합니다.
+
+### Foreground Service
+
+- 목적: 화면이 꺼져도 센서 수집 및 전송 유지
+- 관리자 기능: 알림창에 수집/전송/버퍼링 상태 실시간 노출
+
+### Remote Config
+
+- 목적: 단말 직접 조작 없이 수집 주기, 샘플링 속도 원격 제어
+- 개발 지원: 특정 상황(예: 낙상 테스트)에서 고주파 수집 모드 전환
+
+### Log Tunneling
+
+- 목적: 전송 오류/크래시 발생 시 원격 로그 추출 및 분석
+
+## 3) 중기 진행 (Phase 2): 프라이버시 및 리소스 최적화
+
+고객 단말 부담을 줄이고 신뢰를 높이기 위한 정책을 도입합니다.
+
+### 데이터 익명화 (Anonymization)
+
+- `deviceId` 외 개인 식별 가능 정보는 암호화 또는 제외
+- 전송 전 데이터 마스킹 처리
+
+### 배터리/트래픽 정책 (Smart Sync)
+
+- Wi-Fi 환경에서만 대량 버퍼 flush
+- 배터리 20% 이하 시 수집 일시 중단 등 정책 기반 제어
+
+### On-device Health Check
+
+- 앱 메모리/저장공간 사용량 모니터링
+- 관리자 화면에서 단말 건강 상태 확인
+
+## 4) 장기 진행 (Phase 3): 멀티 디바이스 확장 및 Edge 지능화
+
+브릿지를 넘어 미들웨어로 확장하는 단계입니다.
+
+### Wear OS 브릿지 통합
+
+- 스마트폰을 허브로 사용해 워치 센서 데이터까지 통합 수집/전송
+
+### 엣지 AI 전처리 (Pre-processing)
+
+- 전체 원시 데이터 대신 이벤트(예: 움직임 감지) 중심 전송
+- 네트워크/저장 효율 극대화
+
+### 멀티 타겟 라우팅
+
+- 수집 데이터의 다중 목적지 동시 전송(여러 Edge/Cloud)

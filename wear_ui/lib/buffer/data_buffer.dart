@@ -9,6 +9,9 @@ class DataBuffer {
   void push(SensorPacket packet) {
     if (_queue.length >= AppConstants.maxMemoryBufferLimit) {
       _queue.removeFirst(); // 오버플로우 방지를 위한 오래된 데이터 폐기
+      /* ==============================================================================*/
+      // 향후에는 오래된 데이터를 로컬 스토리지로 옮기는 어댑터 패턴으로 확장 가능
+      /* ==============================================================================*/
     }
     _queue.addLast(packet);
   }
